@@ -26,17 +26,16 @@ jobs:
             '--add Microsoft.VisualStudio.ComponentGroup.WebDeploy', `
             '--quiet', '--wait', '--norestart', '--nocache'
 
-      - name: Set Up MSBuild Path
+      - name: Find MSBuild Path
         shell: powershell
         run: |
-          $MSBuildPath = "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin"
-          if (-Not (Test-Path $MSBuildPath)) {
-            Write-Error "MSBuild path not found: $MSBuildPath"
+          $msbuildPath = Get-Command msbuild | Select-Object -ExpandProperty Definition
+          if (-Not $msbuildPath) {
+            Write-Error "MSBuild executable not found in PATH"
             exit 1
           }
-          echo "MSBuild path: $MSBuildPath"
-          $env:Path += ";$MSBuildPath"
-          & "$MSBuildPath\msbuild.exe" .\HRSolution.sln /p:Configuration=Release
+          echo "MSBuild found at: $msbuildPath"
+          & $msbuildPath .\HRSolution.sln /p:Configuration=Release
 
       - name: Save Build Artifacts
         uses: actions/upload-artifact@v3
