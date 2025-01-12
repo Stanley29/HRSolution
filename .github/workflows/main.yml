@@ -15,9 +15,7 @@ jobs:
 
       - name: Install .NET Framework Build Tools
         run: |
-          # Download Visual Studio Build Tools installer
           Invoke-WebRequest -Uri https://aka.ms/vs/17/release/vs_buildtools.exe -OutFile vs_buildtools.exe
-          # Install required workloads for .NET Framework 4.8
           Start-Process -Wait -NoNewWindow -FilePath .\vs_buildtools.exe -ArgumentList `
             '--add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools', `
             '--add Microsoft.VisualStudio.Workload.NetWeb', `
@@ -42,20 +40,18 @@ jobs:
             exit 1
           }
           echo "MSBuild found at: $msbuildPath"
-          & $msbuildPath .\HRSolution.sln /p:Configuration=Release /p:OutputPath=./Build/
+          & $msbuildPath .\HRSolution.sln /p:Configuration=Release /fl /flp:logfile=msbuild.log
 
-      - name: Verify Build Directory
+      - name: Display Build Log
+        run: cat msbuild.log
+
+      - name: Locate Build Output
         run: |
-          if (Test-Path -Path ./Build) {
-            Write-Output "Build directory exists and contains:"
-            Get-ChildItem -Path ./Build
-          } else {
-            Write-Error "Build directory does not exist."
-            exit 1
-          }
+          Write-Output "Searching for build output..."
+          Get-ChildItem -Path . -Recurse -Filter *.dll
 
       - name: Save Build Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: build-files
-          path: ./Build
+          path: path\to\identified\build\files
