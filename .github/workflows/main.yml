@@ -30,10 +30,11 @@ jobs:
         run: nuget restore
 
       - name: Build
-        run: '"C:\Program Files\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\msbuild.exe" /p:Configuration=Release'
+        shell: cmd
+        run: "C:\\Program Files\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe /p:Configuration=Release"
 
       - name: Save Build Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: build-files
-          path: path\to\output\directory
+          path: path\\to\\output\\directory
