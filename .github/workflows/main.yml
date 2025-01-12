@@ -40,18 +40,12 @@ jobs:
             exit 1
           }
           echo "MSBuild found at: $msbuildPath"
-          & $msbuildPath .\HRSolution.sln /p:Configuration=Release /fl /flp:logfile=msbuild.log
-
-      - name: Display Build Log
-        run: cat msbuild.log
+          & $msbuildPath .\HRSolution.sln /p:Configuration=Release
 
       - name: Locate Build Output
         run: |
           Write-Output "Searching for build output..."
-          Get-ChildItem -Path . -Recurse -Filter *.dll
+          Get-ChildItem -Path . -Recurse -Filter *.dll -Name | ForEach-Object { Write-Output "Found: $_" }
+          Write-Output "Searching for obj and bin folders..."
+          Get-ChildItem -Path . -Recurse -Directory -Include obj, bin | ForEach-Object { Write-Output "Found folder: $_" }
 
-      - name: Save Build Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-files
-          path: path\to\identified\build\files
