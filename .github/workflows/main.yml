@@ -24,11 +24,12 @@ jobs:
           Invoke-WebRequest -Uri https://aka.ms/vs/17/release/vs_buildtools.exe -OutFile vs_buildtools.exe
           # Install required workloads
           Start-Process -Wait -NoNewWindow -FilePath .\vs_buildtools.exe -ArgumentList `
-            '--quiet', '--wait', '--norestart', '--nocache', `
-            '--add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools', `
-            '--add Microsoft.VisualStudio.Workload.NetWeb', `
-            '--add Microsoft.VisualStudio.Workload.WebBuildTools', `
-            '--add Microsoft.VisualStudio.Component.WebDeploy'
+            '--add Microsoft.VisualStudio.Component.WebBuildTools', `
+            '--add Microsoft.VisualStudio.ComponentGroup.Web', `
+            '--add Microsoft.VisualStudio.ComponentGroup.WebToolsExtensions', `
+            '--add Microsoft.VisualStudio.ComponentGroup.WebDeploy', `
+            '--add Microsoft.VisualStudio.ComponentGroup.WebDevelopment', `
+            '--quiet', '--wait', '--norestart', '--nocache'
 
       - name: Install dependencies
         run: dotnet restore
