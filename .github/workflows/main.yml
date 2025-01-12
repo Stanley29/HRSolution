@@ -42,7 +42,7 @@ jobs:
             exit 1
           }
           echo "MSBuild found at: $msbuildPath"
-          & $msbuildPath .\HRSolution.sln /p:Configuration=Release /p:OutDir=./Build/
+          & $msbuildPath .\HRSolution.sln /p:Configuration=Release /p:OutputPath=./Build/
 
       - name: Verify Build Directory
         run: |
