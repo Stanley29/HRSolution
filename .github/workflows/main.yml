@@ -21,13 +21,20 @@ jobs:
       - name: Install dependencies
         run: dotnet restore
 
-      - name: Build
-        run: dotnet build --configuration Release --output ./Build
+      - name: Install ASP.NET Workload
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y apt-transport-https
+          sudo apt-get update && sudo apt-get install -y dotnet-sdk-7.0
+
+      - name: Build projects individually
+        run: |
+          for proj in $(find . -name '*.csproj'); do
+            dotnet build "$proj" --configuration Release --output ./Build
+          done
 
       - name: Save Build Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: build-files
           path: ./Build
-
-
