@@ -42,7 +42,17 @@ jobs:
             exit 1
           }
           echo "MSBuild found at: $msbuildPath"
-          & $msbuildPath .\HRSolution.sln /p:Configuration=Release
+          & $msbuildPath .\HRSolution.sln /p:Configuration=Release /p:OutDir=./Build/
+
+      - name: Verify Build Directory
+        run: |
+          if (Test-Path -Path ./Build) {
+            Write-Output "Build directory exists and contains:"
+            Get-ChildItem -Path ./Build
+          } else {
+            Write-Error "Build directory does not exist."
+            exit 1
+          }
 
       - name: Save Build Artifacts
         uses: actions/upload-artifact@v3
