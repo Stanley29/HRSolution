@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - name: Checkout code
@@ -21,17 +21,8 @@ jobs:
       - name: Install dependencies
         run: dotnet restore
 
-      - name: Install ASP.NET Workload
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y apt-transport-https
-          sudo apt-get update && sudo apt-get install -y dotnet-sdk-7.0
-
-      - name: Build projects individually
-        run: |
-          for proj in $(find . -name '*.csproj'); do
-            dotnet build "$proj" --configuration Release --output ./Build
-          done
+      - name: Build
+        run: dotnet build --configuration Release --output ./Build
 
       - name: Save Build Artifacts
         uses: actions/upload-artifact@v3
