@@ -26,15 +26,24 @@ jobs:
             '--add Microsoft.VisualStudio.ComponentGroup.WebDeploy', `
             '--quiet', '--wait', '--norestart', '--nocache'
 
-      - name: Find MSBuild Path
+      - name: Find MSBuild Path with vswhere
+        id: msbuild-locator
         shell: powershell
         run: |
-          $msbuildPath = Get-Command msbuild | Select-Object -ExpandProperty Definition
-          if (-Not $msbuildPath) {
-            Write-Error "MSBuild executable not found in PATH"
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          if (-Not (Test-Path $vswhere)) {
+            Invoke-WebRequest -Uri https://aka.ms/vs/17/release/vswhere.exe -OutFile $vswhere
+          }
+          & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe
+
+      - name: Build
+        shell: powershell
+        run: |
+          $msbuildPath = (Get-Content $env:GITHUB_WORKSPACE\msbuild-locator\output).Trim()
+          if (-Not (Test-Path $msbuildPath)) {
+            Write-Error "MSBuild executable not found at: $msbuildPath"
             exit 1
           }
-          echo "MSBuild found at: $msbuildPath"
           & $msbuildPath .\HRSolution.sln /p:Configuration=Release
 
       - name: Save Build Artifacts
