@@ -26,6 +26,9 @@ jobs:
             '--add Microsoft.VisualStudio.ComponentGroup.WebDeploy', `
             '--quiet', '--wait', '--norestart', '--nocache'
 
+      - name: Restore NuGet Packages
+        run: nuget restore .\HRSolution.sln
+
       - name: Find and Use MSBuild
         shell: powershell
         run: |
