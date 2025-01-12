@@ -18,10 +18,17 @@ jobs:
         with:
           dotnet-version: '7.0.x'
 
-      - name: Install Visual Studio Components
+      - name: Install Visual Studio Build Tools
         run: |
-          choco install visualstudio2022buildtools --package-parameters "--allWorkloads --includeRecommended --includeOptional"
-          choco install visualstudio2022-workload-netweb
+          # Download Visual Studio Build Tools installer
+          Invoke-WebRequest -Uri https://aka.ms/vs/17/release/vs_buildtools.exe -OutFile vs_buildtools.exe
+          # Install required workloads
+          Start-Process -Wait -NoNewWindow -FilePath .\vs_buildtools.exe -ArgumentList `
+            '--quiet', '--wait', '--norestart', '--nocache', `
+            '--add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools', `
+            '--add Microsoft.VisualStudio.Workload.NetWeb', `
+            '--add Microsoft.VisualStudio.Workload.WebBuildTools', `
+            '--add Microsoft.VisualStudio.Component.WebDeploy'
 
       - name: Install dependencies
         run: dotnet restore
