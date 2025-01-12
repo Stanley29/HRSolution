@@ -13,32 +13,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '7.0.x'
-
-      - name: Install Visual Studio Build Tools
+      - name: Install .NET Framework Build Tools
         run: |
           # Download Visual Studio Build Tools installer
           Invoke-WebRequest -Uri https://aka.ms/vs/17/release/vs_buildtools.exe -OutFile vs_buildtools.exe
-          # Install required workloads
+          # Install required workloads for .NET Framework 4.8
           Start-Process -Wait -NoNewWindow -FilePath .\vs_buildtools.exe -ArgumentList `
-            '--add Microsoft.VisualStudio.Component.WebBuildTools', `
-            '--add Microsoft.VisualStudio.ComponentGroup.Web', `
+            '--add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools', `
+            '--add Microsoft.VisualStudio.Workload.NetWeb', `
+            '--add Microsoft.VisualStudio.Workload.WebBuildTools', `
             '--add Microsoft.VisualStudio.ComponentGroup.WebToolsExtensions', `
             '--add Microsoft.VisualStudio.ComponentGroup.WebDeploy', `
-            '--add Microsoft.VisualStudio.ComponentGroup.WebDevelopment', `
             '--quiet', '--wait', '--norestart', '--nocache'
 
-      - name: Install dependencies
-        run: dotnet restore
+      - name: Restore dependencies
+        run: nuget restore
 
       - name: Build
-        run: dotnet build --configuration Release --output ./Build
+        run: msbuild /p:Configuration=Release
 
       - name: Save Build Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: build-files
-          path: ./Build
+          path: path\to\output\directory
