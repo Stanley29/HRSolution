@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-2022
+    runs-on: windows-latest
 
     steps:
       - name: Checkout code
@@ -17,6 +17,11 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '7.0.x'
+
+      - name: Install Visual Studio Components
+        run: |
+          choco install visualstudio2022buildtools --package-parameters "--allWorkloads --includeRecommended --includeOptional"
+          choco install visualstudio2022-workload-netweb
 
       - name: Install dependencies
         run: dotnet restore
