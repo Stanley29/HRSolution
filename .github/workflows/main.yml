@@ -42,10 +42,18 @@ jobs:
           echo "MSBuild found at: $msbuildPath"
           & $msbuildPath .\HRSolution.sln /p:Configuration=Release
 
-      - name: Locate Build Output
+      - name: Verify Bin Directory
         run: |
-          Write-Output "Searching for build output..."
-          Get-ChildItem -Path . -Recurse -Filter *.dll -Name | ForEach-Object { Write-Output "Found: $_" }
-          Write-Output "Searching for obj and bin folders..."
-          Get-ChildItem -Path . -Recurse -Directory -Include obj, bin | ForEach-Object { Write-Output "Found folder: $_" }
+          if (Test-Path -Path HRWebsite/bin) {
+            Write-Output "Bin directory exists and contains:"
+            Get-ChildItem -Path HRWebsite/bin
+          } else {
+            Write-Error "Bin directory does not exist."
+            exit 1
+          }
 
+      - name: Save Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-files
+          path: HRWebsite/bin
