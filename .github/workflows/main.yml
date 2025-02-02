@@ -40,14 +40,14 @@ jobs:
             exit 1
           }
           echo "MSBuild found at: $msbuildPath"
-          & $msbuildPath .\HRSolution.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile
+          & $msbuildPath .\HRSolution.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=Properties\PublishProfiles\FolderProfile
 
       - name: Publish to folder
         run: |
           $projectPath = Resolve-Path -Path .\HRSolution.sln
           $publishPath = Join-Path -Path $projectPath -ChildPath "publish"
           New-Item -ItemType Directory -Path $publishPath -Force
-          & $msbuildPath .\HRSolution.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile /p:PublishDir=$publishPath
+          & $msbuildPath .\HRSolution.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=Properties\PublishProfiles\FolderProfile /p:PublishDir=$publishPath
 
       - name: Verify Published Files
         run: |
