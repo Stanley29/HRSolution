@@ -40,13 +40,16 @@ jobs:
             exit 1
           }
           echo "MSBuild found at: $msbuildPath"
-          & $msbuildPath .\HRSolution.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=HRWebsite\Properties\PublishProfiles\FolderProfile.pubxml
+          $publishProfilePath = "HRWebsite\Properties\PublishProfiles\FolderProfile.pubxml"
+          echo "Using Publish Profile: $publishProfilePath"
+          & $msbuildPath .\HRSolution.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=$publishProfilePath
 
       - name: Publish to folder
         run: |
           $projectPath = Resolve-Path -Path .\HRSolution.sln
           $publishPath = Join-Path -Path $projectPath -ChildPath "publish"
           New-Item -ItemType Directory -Path $publishPath -Force
+          $msbuildPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe
           & $msbuildPath .\HRSolution.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=HRWebsite\Properties\PublishProfiles\FolderProfile.pubxml /p:PublishDir=$publishPath
 
       - name: Verify Published Files
