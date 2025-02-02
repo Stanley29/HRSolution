@@ -52,7 +52,7 @@ jobs:
           $publishDir = Join-Path -Path (Split-Path -Path $solutionPath) -ChildPath "publish"
           New-Item -ItemType Directory -Path $publishDir -Force
           Write-Output "Publishing to: $publishDir"
-          & $msbuildPath $solutionPath /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=$publishProfilePath /p:PublishDir=$publishDir
+          & $msbuildPath $solutionPath /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=$publishProfilePath /p:PublishDir=$publishDir /verbosity:detailed
           Write-Output "Files in publish directory after publish:"
           Get-ChildItem -Path $publishDir
 
