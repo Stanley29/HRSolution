@@ -28,6 +28,7 @@ jobs:
         run: nuget restore .\HRSolution.sln
 
       - name: Find and Use MSBuild
+        id: find-msbuild
         shell: powershell
         run: |
           $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
@@ -39,12 +40,15 @@ jobs:
             Write-Error "MSBuild executable not found"
             exit 1
           }
+          echo "##vso[task.setvariable variable=msbuildPath]$msbuildPath"
           echo "MSBuild found at: $msbuildPath"
           cd HRWebsite
           & $msbuildPath ..\HRSolution.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=Properties\PublishProfiles\FolderProfile.pubxml
 
       - name: Publish to folder
+        shell: powershell
         run: |
+          $msbuildPath = $env:msbuildPath
           $projectPath = Resolve-Path -Path .\HRSolution.sln
           $publishPath = Join-Path -Path $projectPath -ChildPath "publish"
           New-Item -ItemType Directory -Path $publishPath -Force
