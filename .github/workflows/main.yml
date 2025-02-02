@@ -40,20 +40,27 @@ jobs:
             exit 1
           }
           echo "MSBuild found at: $msbuildPath"
-          & $msbuildPath .\HRSolution.sln /p:Configuration=Release
+          & $msbuildPath .\HRSolution.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile
 
-      - name: Verify Bin Directory
+      - name: Publish to folder
         run: |
-          if (Test-Path -Path HRWebsite/bin) {
-            Write-Output "Bin directory exists and contains:"
-            Get-ChildItem -Path HRWebsite/bin
+          $projectPath = Resolve-Path -Path .\HRSolution.sln
+          $publishPath = Join-Path -Path $projectPath -ChildPath "publish"
+          New-Item -ItemType Directory -Path $publishPath -Force
+          & $msbuildPath .\HRSolution.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile /p:PublishDir=$publishPath
+
+      - name: Verify Published Files
+        run: |
+          if (Test-Path -Path .\publish) {
+            Write-Output "Publish directory exists and contains:"
+            Get-ChildItem -Path .\publish
           } else {
-            Write-Error "Bin directory does not exist."
+            Write-Error "Publish directory does not exist."
             exit 1
           }
 
-      - name: Save Build Artifacts
+      - name: Save Published Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-files
-          path: HRWebsite/bin
+          name: publish-files
+          path: publish
