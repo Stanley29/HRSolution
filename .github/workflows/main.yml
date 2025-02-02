@@ -40,7 +40,7 @@ jobs:
             Write-Error "MSBuild executable not found"
             exit 1
           }
-          echo "##vso[task.setvariable variable=msbuildPath]$msbuildPath"
+          Write-Output "::set-env name=MSBUILD_PATH::$msbuildPath"
           echo "MSBuild found at: $msbuildPath"
           cd HRWebsite
           & $msbuildPath ..\HRSolution.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=Properties\PublishProfiles\FolderProfile.pubxml
@@ -48,7 +48,7 @@ jobs:
       - name: Publish to folder
         shell: powershell
         run: |
-          $msbuildPath = $env:msbuildPath
+          $msbuildPath = $env:MSBUILD_PATH
           $projectPath = Resolve-Path -Path .\HRSolution.sln
           $publishPath = Join-Path -Path $projectPath -ChildPath "publish"
           New-Item -ItemType Directory -Path $publishPath -Force
