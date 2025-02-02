@@ -41,18 +41,20 @@ jobs:
             exit 1
           }
           echo "MSBuild found at: $msbuildPath"
-          cd HRWebsite
-          & $msbuildPath ..\HRSolution.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=Properties\PublishProfiles\FolderProfile.pubxml
+          $solutionPath = Resolve-Path -Path ..\HRSolution.sln
+          echo "SOLUTION_PATH=$solutionPath" >> $env:GITHUB_ENV
           echo "MSBUILD_PATH=$msbuildPath" >> $env:GITHUB_ENV
+          cd HRWebsite
+          & $msbuildPath $env:SOLUTION_PATH /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=Properties\PublishProfiles\FolderProfile.pubxml
 
       - name: Publish to folder
         shell: powershell
         run: |
           $msbuildPath = $env:MSBUILD_PATH
-          $projectPath = Resolve-Path -Path .\HRSolution.sln
-          $publishPath = Join-Path -Path $projectPath -ChildPath "publish"
+          $solutionPath = $env:SOLUTION_PATH
+          $publishPath = Join-Path -Path (Split-Path -Path $solutionPath) -ChildPath "publish"
           New-Item -ItemType Directory -Path $publishPath -Force
-          & $msbuildPath ..\HRSolution.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=Properties\PublishProfiles\FolderProfile.pubxml /p:PublishDir=$publishPath
+          & $msbuildPath $solutionPath /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=Properties\PublishProfiles\FolderProfile.pubxml /p:PublishDir=$publishPath
 
       - name: Verify Published Files
         run: |
