@@ -41,11 +41,10 @@ jobs:
             exit 1
           }
           echo "MSBuild found at: $msbuildPath"
-          $solutionPath = Resolve-Path -Path ..\HRSolution.sln
+          $solutionPath = Resolve-Path -Path .\HRSolution.sln
           echo "SOLUTION_PATH=$solutionPath" >> $env:GITHUB_ENV
           echo "MSBUILD_PATH=$msbuildPath" >> $env:GITHUB_ENV
-          cd HRWebsite
-          & $msbuildPath $env:SOLUTION_PATH /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=Properties\PublishProfiles\FolderProfile.pubxml
+          & $msbuildPath $solutionPath /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=HRWebsite\Properties\PublishProfiles\FolderProfile.pubxml
 
       - name: Publish to folder
         shell: powershell
@@ -54,7 +53,7 @@ jobs:
           $solutionPath = $env:SOLUTION_PATH
           $publishPath = Join-Path -Path (Split-Path -Path $solutionPath) -ChildPath "publish"
           New-Item -ItemType Directory -Path $publishPath -Force
-          & $msbuildPath $solutionPath /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=Properties\PublishProfiles\FolderProfile.pubxml /p:PublishDir=$publishPath
+          & $msbuildPath $solutionPath /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=HRWebsite\Properties\PublishProfiles\FolderProfile.pubxml /p:PublishDir=$publishPath
 
       - name: Verify Published Files
         run: |
