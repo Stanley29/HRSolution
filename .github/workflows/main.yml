@@ -40,10 +40,10 @@ jobs:
             Write-Error "MSBuild executable not found"
             exit 1
           }
-          Write-Output "::set-env name=MSBUILD_PATH::$msbuildPath"
           echo "MSBuild found at: $msbuildPath"
           cd HRWebsite
           & $msbuildPath ..\HRSolution.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=Properties\PublishProfiles\FolderProfile.pubxml
+          echo "MSBUILD_PATH=$msbuildPath" >> $env:GITHUB_ENV
 
       - name: Publish to folder
         shell: powershell
