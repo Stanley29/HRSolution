@@ -13,6 +13,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Install .NET Core SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '5.x'  # Adjust to your specific .NET Core version
+
       - name: Install .NET Framework Build Tools
         run: |
           Invoke-WebRequest -Uri https://aka.ms/vs/17/release/vs_buildtools.exe -OutFile vs_buildtools.exe
@@ -27,34 +32,10 @@ jobs:
       - name: Restore NuGet Packages
         run: nuget restore .\HRSolution.sln
 
-      - name: Find and Use MSBuild
-        id: find-msbuild
-        shell: powershell
+      - name: Build and Publish
         run: |
-          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-          if (-Not (Test-Path $vswhere)) {
-            Invoke-WebRequest -Uri https://aka.ms/vs/17/release/vswhere.exe -OutFile $vswhere
-          }
-          $msbuildPath = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe
-          if (-Not $msbuildPath) {
-            Write-Error "MSBuild executable not found"
-            exit 1
-          }
-          echo "MSBuild found at: $msbuildPath"
-          echo "MSBUILD_PATH=$msbuildPath" >> $env:GITHUB_ENV
-
-      - name: Publish to folder
-        shell: powershell
-        run: |
-          $msbuildPath = $env:MSBUILD_PATH
-          $solutionPath = Resolve-Path -Path .\HRSolution.sln
-          $publishProfilePath = Resolve-Path -Path .\HRWebsite\Properties\PublishProfiles\FolderProfile.pubxml
-          $publishDir = Join-Path -Path (Split-Path -Path $solutionPath) -ChildPath "publish"
-          New-Item -ItemType Directory -Path $publishDir -Force
-          Write-Output "Publishing to: $publishDir"
-          & $msbuildPath $solutionPath /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=$publishProfilePath /p:PublishDir=$publishDir /verbosity:detailed
-          Write-Output "Files in publish directory after publish:"
-          Get-ChildItem -Path $publishDir
+          dotnet build .\HRSolution.sln -c Release
+          dotnet publish .\HRWebsite\HRWebsite.csproj -c Release -o ./publish
 
       - name: Verify Published Files
         run: |
