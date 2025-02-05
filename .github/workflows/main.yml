@@ -73,7 +73,7 @@ jobs:
           path: publish
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           name: publish-files
           path: ./downloaded-artifacts
@@ -100,4 +100,5 @@ jobs:
             aws ssm send-command --document-name "AWS-RunPowerShellScript" --targets "Key=instanceids,Values=i-03e9aae15f5899ea1" --parameters "commands=Copy-Item -Path $localPath\\* -Destination $outputPath -Recurse -Force"
 
             # Restart IIS to apply changes
-            aws ssm send-command --document-name "AWS-RunPowerShellScript" --targets
+            aws ssm send-command --document-name "AWS-RunPowerShellScript" --targets "Key=instanceids,Values=i-03e9aae15f5899ea1" --parameters "commands=Restart-Service -Name W3SVC"
+          }
