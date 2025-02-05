@@ -71,34 +71,3 @@ jobs:
         with:
           name: publish-files
           path: publish
-
-      - name: Download Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: publish-files
-          path: ./downloaded-artifacts
-
-      - name: Install AWS CLI
-        run: |
-          Invoke-WebRequest "https://awscli.amazonaws.com/AWSCLIV2.msi" -OutFile "AWSCLIV2.msi"
-          Start-Process msiexec.exe -ArgumentList '/i AWSCLIV2.msi /qn' -NoNewWindow -Wait
-
-      - name: Configure AWS CLI
-        run: |
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws configure set default.region us-east-1
-
-      - name: Deploy to EC2
-        run: |
-          $localPath = "D:\\a\\_temp\\downloaded-artifacts"
-          $outputPath = "C:\\inetpub\\wwwroot\\my-web-app"
-
-          # Compare the version of the files (you need to implement your own version comparison logic)
-          if ((Compare-Object (Get-ChildItem $localPath) (Get-ChildItem $outputPath)) -ne $null) {
-            # Copy files to EC2 instance
-            aws ssm send-command --document-name "AWS-RunPowerShellScript" --targets "Key=instanceids,Values=i-03e9aae15f5899ea1" --parameters "commands=Copy-Item -Path $localPath\\* -Destination $outputPath -Recurse -Force"
-
-            # Restart IIS to apply changes
-            aws ssm send-command --document-name "AWS-RunPowerShellScript" --targets "Key=instanceids,Values=i-03e9aae15f5899ea1" --parameters "commands=Restart-Service -Name W3SVC"
-          }
